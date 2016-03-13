@@ -28,7 +28,15 @@ handleScreenshotMode() {
     # dividing to calculate iterations
     iterations=$(bc <<< "scale=2; $TIME/$INTERVAL")
     # cast to int
+    rounded=${INTERVAL/.*}
     iterations=${iterations/.*}
+    echo $rounded
+    # if value is to small
+    if [ $rounded -lt 1 ] && [ $iterations -gt $(( TIME*5 )) ]; then
+        # calculate sleep time
+        iterations=$(( TIME*2 ))
+    fi
+    echo " $iterations screenshots will be taken"
     for (( c=1; c<=$iterations; c++ ))
     do
         capture=$(adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > "$TMP_DIR"adb-screenshot-$(date +%s%N)"$IMAGE_EXTENSION")
